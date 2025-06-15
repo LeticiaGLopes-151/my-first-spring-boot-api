@@ -1,0 +1,51 @@
+# Arquivos de Build do Maven
+/target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+# O maven-wrapper.jar é frequentemente incluído para garantir que qualquer um que clone o projeto possa construí-lo
+# sem ter o Maven instalado globalmente, usando ./mvnw. Se você preferir ignorá-lo, descomente a linha abaixo:
+# .mvn/wrapper/maven-wrapper.jar
+
+# Arquivos de IDE (IntelliJ, Eclipse, VS Code, NetBeans)
+.idea/
+*.iml
+*.ipr
+*.iws
+.classpath
+.project
+.settings/
+.springBeans
+.sts4-cache
+.apt_generated
+.factorypath
+.vscode/
+*.vs/
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/ # Para NetBeans, que usa 'build' em vez de 'target'
+
+# Arquivos de Log e Temporários
+*.log
+logs/
+*.txt
+*.tmp
+
+# Arquivos de Banco de Dados Locais (H2, se usado em modo arquivo)
+*.mv.db
+*.trace.db
+
+# Arquivos gerados (ex: zip do Spring Initializr)
+*.zip
+
+# Arquivos de Sistema Operacional
+.DS_Store
+Thumbs.db
