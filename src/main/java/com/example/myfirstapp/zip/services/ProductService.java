@@ -1,19 +1,21 @@
 package com.example.myfirstapp.zip.services;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
-import com.example.myfirstapp.zip.entities.Category; // Nova importação
+import com.example.myfirstapp.zip.entities.Category;
 import com.example.myfirstapp.zip.entities.Product;
-import com.example.myfirstapp.zip.repositories.CategoryRepository; // Nova importação
+import com.example.myfirstapp.zip.repositories.CategoryRepository;
 import com.example.myfirstapp.zip.repositories.ProductRepository;
 import com.example.myfirstapp.zip.exceptions.DatabaseException;
-import com.example.myfirstapp.zip.exceptions.ResourceNotFoundException;
+import com.example.myfirstapp.zip.exceptions.ResourceNotFoundException; //
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -24,7 +26,7 @@ public class ProductService {
     private ProductRepository repository;
 
     @Autowired
-    private CategoryRepository categoryRepository; // Injetar CategoryRepository para gerenciar relações
+    private CategoryRepository categoryRepository;
 
     public List<Product> findAll() {
         return repository.findAll();
@@ -36,12 +38,18 @@ public class ProductService {
     }
 
     public Product insert(Product obj) {
-        // Garante que as categorias associadas no objeto Product sejam buscadas do banco
-        // para que o JPA as gerencie corretamente e evite persistir categorias duplicadas
-        obj.getCategories().clear(); // Limpa as categorias que vieram no obj para adicionar as do banco
-        for (Category cat : obj.getCategories()) { // Itera sobre as categorias que vieram no obj
-            Category category = categoryRepository.getReferenceById(cat.getId()); // Busca a categoria do banco
-            obj.getCategories().add(category); // Adiciona a categoria gerenciada pelo JPA
+        Set<Category> categoriesFromRequest = new HashSet<>(obj.getCategories());
+        obj.getCategories().clear();
+
+        for (Category cat : categoriesFromRequest) {
+            // **MUDANÇA AQUI: Usar findById para verificar a existência da categoria**
+            Optional<Category> optionalCategory = categoryRepository.findById(cat.getId());
+            if (optionalCategory.isPresent()) {
+                obj.getCategories().add(optionalCategory.get());
+            } else {
+                // Lança uma exceção ResourceNotFoundException se a categoria não for encontrada
+                throw new ResourceNotFoundException("Category with ID " + cat.getId() + " not found for product."); //
+            }
         }
         return repository.save(obj);
     }
@@ -72,10 +80,17 @@ public class ProductService {
         entity.setPrice(obj.getPrice());
         entity.setImgUrl(obj.getImgUrl());
 
-        entity.getCategories().clear(); // Limpa as categorias atuais do produto
-        for (Category cat : obj.getCategories()) {
-            Category category = categoryRepository.getReferenceById(cat.getId()); // Busca a categoria do banco
-            entity.getCategories().add(category); // Adiciona a categoria gerenciada
+        Set<Category> categoriesFromRequest = new HashSet<>(obj.getCategories());
+        entity.getCategories().clear();
+        for (Category cat : categoriesFromRequest) {
+            // **MUDANÇA AQUI: Usar findById também para o método updateData**
+            Optional<Category> optionalCategory = categoryRepository.findById(cat.getId());
+            if (optionalCategory.isPresent()) {
+                entity.getCategories().add(optionalCategory.get());
+            } else {
+                // Lança uma exceção ResourceNotFoundException se a categoria não for encontrada
+                throw new ResourceNotFoundException("Category with ID " + cat.getId() + " not found for product update."); //
+            }
         }
     }
 }
